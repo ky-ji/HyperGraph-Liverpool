@@ -1,0 +1,11 @@
+{
+  "generatedAt": "2026-04-21",
+  "source": "data.json",
+  "outputs": [
+    "data_schema_summary.json",
+    "hypergraphs_chapter.json",
+    "hypergraphs_lane.json",
+    "hypergraphs_pattern.json",
+    "hypergraphs_phase.json"
+  ]
+}

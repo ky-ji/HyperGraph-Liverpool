@@ -1,21 +1,25 @@
-const DATA = window.LIVERPOOL_HYPERGRAPH_DATA;
+const DATASET_PATHS = {
+  phase: "./data/data_hypergraph/data_hypergraph/hypergraphs_phase.json",
+  chapter: "./data/data_hypergraph/data_hypergraph/hypergraphs_chapter.json",
+};
 
-const PHASE_MAP = new Map(DATA.phases.map((phase) => [phase.id, phase]));
-const PLAYER_MAP = new Map(DATA.players.map((player) => [player.id, player]));
-const CHAPTER_MAP = new Map(DATA.chapters.map((chapter) => [chapter.id, chapter]));
-const PHASE_INDEX = new Map(DATA.phases.map((phase, index) => [phase.id, index]));
-const AUTOPLAY_ORDER = DATA.presentation?.autoplayOrder ?? DATA.chapters.filter((chapter) => chapter.id !== "explore").map((chapter) => chapter.id);
+let DATA = null;
+let PHASE_MAP = new Map();
+let PLAYER_MAP = new Map();
+let CHAPTER_MAP = new Map();
+let PHASE_INDEX = new Map();
+let AUTOPLAY_ORDER = [];
 const PALETTE = ["#b3202a", "#f4a259", "#127475", "#6d597a", "#3a86ff", "#ff7f51", "#ef476f", "#2a9d8f"];
 
 const state = {
   mode: "story",
   view: "both",
   activeChapterId: "overview",
-  selectedPhaseId: DATA.chapters[0].phaseIds[0],
+  selectedPhaseId: null,
   activePlayerId: null,
   isAutoplay: false,
   autoplayTimer: null,
-  presentationSpeed: DATA.presentation?.defaultSpeedMs ?? 3200,
+  presentationSpeed: 3200,
   filters: {
     outcome: "all",
     lane: "all",
@@ -26,11 +30,141 @@ const state = {
 const elements = {};
 
 document.addEventListener("DOMContentLoaded", () => {
-  cacheElements();
-  renderStaticMeta();
-  bindKeyboard();
-  renderAll();
+  void initApp();
 });
+
+async function initApp() {
+  try {
+    DATA = await loadDataset();
+    buildIndexes();
+    state.activeChapterId = DATA.chapters[0]?.id ?? "overview";
+    state.selectedPhaseId = DATA.chapters[0]?.phaseIds[0] ?? DATA.phases[0]?.id ?? null;
+    state.presentationSpeed = DATA.presentation?.defaultSpeedMs ?? 3200;
+    cacheElements();
+    renderStaticMeta();
+    bindKeyboard();
+    renderAll();
+  } catch (error) {
+    console.error("Failed to initialize Liverpool Hypergraph app.", error);
+    document.body.innerHTML = `
+      <main style="min-height:100vh;display:grid;place-items:center;background:#0f1720;color:#f6f7f8;font-family:'Segoe UI',sans-serif;padding:24px;">
+        <section style="max-width:680px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:18px;padding:24px 28px;">
+          <h1 style="margin:0 0 12px;">Dataset failed to load</h1>
+          <p style="margin:0;line-height:1.6;">Check that the local server is running and that <code>${DATASET_PATHS.phase}</code> and <code>${DATASET_PATHS.chapter}</code> are reachable.</p>
+        </section>
+      </main>
+    `;
+  }
+}
+
+async function loadDataset() {
+  try {
+    const [phaseData, chapterData] = await Promise.all([fetchJson(DATASET_PATHS.phase), fetchJson(DATASET_PATHS.chapter)]);
+    return normalizeDataset(phaseData, chapterData);
+  } catch (error) {
+    if (window.LIVERPOOL_HYPERGRAPH_DATA) {
+      console.warn("Falling back to bundled dataset because the standardized JSON files could not be loaded.", error);
+      return window.LIVERPOOL_HYPERGRAPH_DATA;
+    }
+    throw error;
+  }
+}
+
+async function fetchJson(path) {
+  const response = await fetch(path, { cache: "no-store" });
+  if (!response.ok) {
+    throw new Error(`Request failed for ${path}: ${response.status} ${response.statusText}`);
+  }
+  return response.json();
+}
+
+function normalizeDataset(phaseData, chapterData) {
+  const phases = (phaseData.hypergraphs ?? []).map(normalizePhase);
+  const chapters = (chapterData.groups ?? []).map((group) => ({
+    id: group.chapterId,
+    title: group.title,
+    mode: group.mode,
+    phaseIds: group.phaseIds ?? [],
+    summary: group.summary ?? "",
+    annotations: group.annotations ?? [],
+  }));
+
+  return {
+    match: {
+      ...phaseData.match,
+      dataSource: "Standardized hypergraph JSON derived from the original Liverpool storyboard dataset",
+    },
+    legend: {
+      hypergraph: "Each translucent shape is one coordinated Liverpool attacking phase.",
+      graph: "Pairwise links only show the pass-to-pass skeleton of the same move.",
+    },
+    players: phaseData.nodes ?? [],
+    phases,
+    chapters,
+    summary: {
+      selectedPhaseCount: phases.length,
+      goalPhaseCount: phases.filter((phase) => phase.outcome === "goal").length,
+      playerCount: (phaseData.nodes ?? []).length,
+      chapterCount: chapters.length,
+      averagePhaseSize: averageOf(phases.map((phase) => phase.uniquePlayerCount)),
+    },
+    summaryBreakdown: {
+      outcomes: countBy(phases, "outcome"),
+      lanes: countBy(phases, "lane"),
+      patterns: countBy(phases, "pattern"),
+    },
+    presentation: {
+      defaultSpeedMs: 3200,
+      autoplayOrder: chapters.filter((chapter) => chapter.id !== "explore").map((chapter) => chapter.id),
+    },
+  };
+}
+
+function normalizePhase(phase) {
+  const primaryHyperedge = phase.hyperedges?.[0] ?? {};
+  return {
+    id: phase.id,
+    label: phase.title,
+    minute: phase.time?.minute ?? "",
+    absoluteSecond: phase.time?.absoluteSecond ?? 0,
+    period: phase.time?.period ?? "1H",
+    startSecond: phase.time?.startSecond ?? 0,
+    duration: phase.time?.duration ?? 0,
+    outcome: phase.tactics?.outcome ?? "shot",
+    lane: phase.tactics?.lane ?? "center",
+    pattern: phase.tactics?.pattern ?? "combination play",
+    shotPlayerId: primaryHyperedge.shotPlayerId ?? null,
+    shotPlayerName: primaryHyperedge.shotPlayerName ?? "Unknown",
+    players: primaryHyperedge.members ?? [],
+    uniquePlayerCount: primaryHyperedge.order ?? (primaryHyperedge.members?.length ?? 0),
+    eventCount: phase.eventPath?.length ?? 0,
+    progression: phase.tactics?.progression ?? phase.comparison?.progression ?? 0,
+    impactScore: phase.tactics?.impactScore ?? 0,
+    links: (phase.graphEdges ?? []).map(({ id, ...link }) => link),
+    events: (phase.eventPath ?? []).map((event) => ({
+      ...event,
+      second: toPeriodSecond(event.absoluteSecond ?? 0, event.period ?? phase.time?.period ?? "1H"),
+    })),
+    comparison: phase.comparison ?? {
+      hyperedgeOrder: primaryHyperedge.order ?? (primaryHyperedge.members?.length ?? 0),
+      graphEdgeCount: (phase.graphEdges ?? []).length,
+      potentialPairCount: 0,
+      higherOrderDelta: 0,
+      connectivityRatio: 0,
+      progression: phase.tactics?.progression ?? 0,
+      duration: phase.time?.duration ?? 0,
+    },
+  };
+}
+
+function buildIndexes() {
+  PHASE_MAP = new Map(DATA.phases.map((phase) => [phase.id, phase]));
+  PLAYER_MAP = new Map(DATA.players.map((player) => [player.id, player]));
+  CHAPTER_MAP = new Map(DATA.chapters.map((chapter) => [chapter.id, chapter]));
+  PHASE_INDEX = new Map(DATA.phases.map((phase, index) => [phase.id, index]));
+  AUTOPLAY_ORDER =
+    DATA.presentation?.autoplayOrder ?? DATA.chapters.filter((chapter) => chapter.id !== "explore").map((chapter) => chapter.id);
+}
 
 function cacheElements() {
   elements.modeSwitch = document.getElementById("mode-switch");
@@ -659,6 +793,7 @@ function renderPitch() {
   const svg = elements.pitch;
   svg.innerHTML = "";
   const phases = visiblePhases();
+  const renderPhases = state.view === "hypergraph" && currentPhase() ? [currentPhase()] : phases;
   if (!phases.length) {
     const message = svgElement("text", {
       x: 480,
@@ -675,21 +810,26 @@ function renderPitch() {
 
   drawPitchFrame(svg);
 
-  const visiblePlayerIds = new Set(phases.flatMap((phase) => phase.players));
+  const visiblePlayerIds = new Set(renderPhases.flatMap((phase) => phase.players));
   const visiblePlayers = DATA.players.filter((player) => visiblePlayerIds.has(player.id));
-  const positions = new Map(visiblePlayers.map((player) => [player.id, pitchPoint(player)]));
+  const basePositions = new Map(visiblePlayers.map((player) => [player.id, pitchPoint(player)]));
+  const phasePositions = new Map(renderPhases.map((phase) => [phase.id, buildPhasePositions(phase, basePositions)]));
 
   if (state.view !== "graph") {
-    phases.forEach((phase) => drawHyperedge(svg, phase, positions));
+    renderPhases.forEach((phase) => drawHyperedge(svg, phase, phasePositions.get(phase.id)));
   }
   if (state.view !== "hypergraph") {
-    phases.forEach((phase) => drawGraphEdges(svg, phase, positions));
+    renderPhases.forEach((phase) => drawGraphEdges(svg, phase, phasePositions.get(phase.id)));
   }
 
   drawSelectedPhaseRoute(svg);
   drawShotMarker(svg);
-  drawAnnotationPins(svg, positions);
-  visiblePlayers.forEach((player) => drawNode(svg, player, phases, positions.get(player.id)));
+  drawAnnotationPins(svg, phasePositions.get(state.selectedPhaseId) ?? basePositions);
+  const selectedPositions = phasePositions.get(state.selectedPhaseId) ?? new Map();
+  visiblePlayers.forEach((player) => {
+    const point = selectedPositions.get(player.id) ?? basePositions.get(player.id);
+    drawNode(svg, player, renderPhases, point);
+  });
 }
 
 function drawPitchFrame(svg) {
@@ -760,22 +900,79 @@ function drawPitchFrame(svg) {
 }
 
 function drawHyperedge(svg, phase, positions) {
-  const coords = phase.players.map((playerId) => positions.get(playerId)).filter(Boolean);
-  const pathData = buildHyperedgePath(coords);
-  if (!pathData) {
+  if (!positions) {
     return;
   }
-  const path = svgElement("path", {
-    d: pathData,
-    class: `hyperedge-path${state.selectedPhaseId === phase.id ? " is-selected" : ""}`,
-    fill: phaseColor(phase.id, hyperedgeAlpha(phase)),
-    stroke: phaseColor(phase.id, 0.84),
-    "stroke-width": state.selectedPhaseId === phase.id ? 3.4 : 2,
+  const coords = phase.players.map((playerId) => positions.get(playerId)).filter(Boolean);
+  if (!coords.length) {
+    return;
+  }
+
+  if (state.view !== "hypergraph") {
+    const pathData = buildHyperedgePath(coords);
+    if (!pathData) {
+      return;
+    }
+    const path = svgElement("path", {
+      d: pathData,
+      class: `hyperedge-path${state.selectedPhaseId === phase.id ? " is-selected" : ""}`,
+      fill: hyperedgeFillColor(phase),
+      stroke: hyperedgeStrokeColor(phase),
+      "stroke-width": state.selectedPhaseId === phase.id ? 4.4 : 2,
+    });
+    svg.appendChild(path);
+
+    if (state.selectedPhaseId === phase.id) {
+      svg.appendChild(
+        svgElement("path", {
+          d: pathData,
+          class: "hyperedge-outline",
+        }),
+      );
+    }
+    return;
+  }
+
+  const hub = {
+    x: coords.reduce((sum, point) => sum + point.x, 0) / coords.length,
+    y: coords.reduce((sum, point) => sum + point.y, 0) / coords.length,
+  };
+
+  coords.forEach((point, index) => {
+    svg.appendChild(
+      svgElement("path", {
+        d: hyperedgeBranchPath(hub, point, index),
+        class: `hyperedge-connector${state.selectedPhaseId === phase.id ? " is-selected" : ""}`,
+        stroke: hyperedgeStrokeColor(phase),
+        "stroke-width": hyperedgeStrokeWidth(phase),
+        opacity: hyperedgeLineAlpha(phase),
+      }),
+    );
   });
-  svg.appendChild(path);
+
+  svg.appendChild(
+    svgElement("circle", {
+      cx: hub.x,
+      cy: hub.y,
+      r: 4.5,
+      class: "hyperedge-centroid",
+      fill: hyperedgeStrokeColor(phase),
+    }),
+  );
+}
+
+function drawHyperedgeLabel() {
+  return;
+}
+
+function drawHyperedgeMembership() {
+  return;
 }
 
 function drawGraphEdges(svg, phase, positions) {
+  if (!positions) {
+    return;
+  }
   phase.links.forEach((link) => {
     const source = positions.get(link.source);
     const target = positions.get(link.target);
@@ -798,6 +995,9 @@ function drawSelectedPhaseRoute(svg) {
     return;
   }
 
+  const routeOpacity = state.view === "hypergraph" ? 0.16 : state.view === "both" ? 0.38 : 0.78;
+  const nodeOpacity = state.view === "hypergraph" ? 0.24 : state.view === "both" ? 0.5 : 0.92;
+
   phase.events.forEach((event, index) => {
     const start = eventPoint(event.start);
     const end = eventPoint(event.end);
@@ -807,6 +1007,7 @@ function drawSelectedPhaseRoute(svg) {
       x2: end.x,
       y2: end.y,
       class: "route-glow",
+      opacity: routeOpacity,
     });
     svg.appendChild(glow);
 
@@ -816,6 +1017,7 @@ function drawSelectedPhaseRoute(svg) {
         cy: end.y,
         r: 4 + (index === phase.events.length - 2 ? 2 : 0),
         class: "route-node",
+        opacity: nodeOpacity,
       });
       svg.appendChild(marker);
     }
@@ -825,6 +1027,9 @@ function drawSelectedPhaseRoute(svg) {
 function drawShotMarker(svg) {
   const phase = currentPhase();
   if (!phase) {
+    return;
+  }
+  if (state.view === "hypergraph") {
     return;
   }
   const lastEvent = phase.events[phase.events.length - 1];
@@ -839,14 +1044,17 @@ function drawAnnotationPins(svg, positions) {
   if (!phase || !annotations.length) {
     return;
   }
+  if (state.view === "hypergraph") {
+    return;
+  }
 
   annotations.forEach((annotation, index) => {
     const point = positions.get(annotation.playerId);
     if (!point) {
       return;
     }
-    const offsetX = index % 2 === 0 ? 94 : -214;
-    const offsetY = -90 + index * 78;
+    const offsetX = index % 2 === 0 ? 112 : -236;
+    const offsetY = -108 + index * 92;
     const calloutX = clamp(point.x + offsetX, 90, 700);
     const calloutY = clamp(point.y + offsetY, 70, 520);
     const labelWidth = Math.min(220, Math.max(138, annotation.title.length * 7.1 + 26));
@@ -900,15 +1108,16 @@ function drawNode(svg, player, phases, point) {
   if (!point) {
     return;
   }
+  const inSelectedPhase = currentPhase()?.players.includes(player.id);
   const group = svgElement("g", {
-    class: `node-group${nodeDimmed(player.id, phases) ? " is-dimmed" : ""}`,
+    class: `node-group${nodeDimmed(player.id, phases) ? " is-dimmed" : ""}${inSelectedPhase ? " is-member" : ""}`,
     tabindex: 0,
     role: "button",
     "aria-label": player.name,
   });
   const selected = state.activePlayerId === player.id;
-  const inSelectedPhase = currentPhase()?.players.includes(player.id);
-  const radius = inSelectedPhase ? 16 : 12 + Math.min(player.phaseCount, 6) * 0.75;
+  const radius = inSelectedPhase ? 17 : 11 + Math.min(player.phaseCount, 6) * 0.65;
+  const showLabel = state.view !== "hypergraph" || inSelectedPhase;
 
   group.appendChild(svgElement("circle", { cx: point.x, cy: point.y, r: radius + 10, class: "node-ring" }));
   group.appendChild(
@@ -923,14 +1132,16 @@ function drawNode(svg, player, phases, point) {
     }),
   );
 
-  const label = svgElement("text", {
-    x: point.x,
-    y: point.y - radius - 14,
-    "text-anchor": "middle",
-    class: "node-label",
-  });
-  label.textContent = player.name.replace("Roberto ", "Firmino ");
-  group.appendChild(label);
+  if (showLabel) {
+    const label = svgElement("text", {
+      x: point.x,
+      y: point.y - radius - 14,
+      "text-anchor": "middle",
+      class: "node-label",
+    });
+    label.textContent = player.name.replace("Roberto ", "Firmino ");
+    group.appendChild(label);
+  }
 
   group.addEventListener("click", () => {
     state.activePlayerId = state.activePlayerId === player.id ? null : player.id;
@@ -948,6 +1159,9 @@ function drawNode(svg, player, phases, point) {
 }
 
 function nodeDimmed(playerId, phases) {
+  if (state.view === "hypergraph") {
+    return !currentPhase()?.players.includes(playerId);
+  }
   if (!state.activePlayerId) {
     return false;
   }
@@ -959,12 +1173,43 @@ function nodeDimmed(playerId, phases) {
 
 function hyperedgeAlpha(phase) {
   if (state.selectedPhaseId === phase.id) {
-    return 0.36;
+    return state.view === "hypergraph" ? 0.5 : 0.36;
   }
   if (state.activePlayerId && !phase.players.includes(state.activePlayerId)) {
     return 0.06;
   }
+  if (state.view === "hypergraph") {
+    return 0.06;
+  }
   return visiblePhases().length === 1 ? 0.28 : 0.15;
+}
+
+function hyperedgeFillColor(phase) {
+  if (state.view === "hypergraph" && state.selectedPhaseId === phase.id) {
+    return "rgba(74, 211, 221, 0.14)";
+  }
+  return phaseColor(phase.id, hyperedgeAlpha(phase));
+}
+
+function hyperedgeStrokeColor(phase) {
+  if (state.view === "hypergraph" && state.selectedPhaseId === phase.id) {
+    return "rgba(92, 226, 236, 0.72)";
+  }
+  return phaseColor(phase.id, 0.84);
+}
+
+function hyperedgeStrokeWidth(phase) {
+  if (state.selectedPhaseId === phase.id) {
+    return 5.2;
+  }
+  return 2.6;
+}
+
+function hyperedgeLineAlpha(phase) {
+  if (state.selectedPhaseId === phase.id) {
+    return 0.98;
+  }
+  return 0.22;
 }
 
 function graphAlpha(phase) {
@@ -980,6 +1225,22 @@ function graphAlpha(phase) {
 function phaseColor(phaseId, alpha) {
   const color = PALETTE[PHASE_INDEX.get(phaseId) % PALETTE.length];
   return hexToRgba(color, alpha);
+}
+
+function countBy(items, key) {
+  return items.reduce((accumulator, item) => {
+    const value = item[key];
+    accumulator[value] = (accumulator[value] ?? 0) + 1;
+    return accumulator;
+  }, {});
+}
+
+function averageOf(values) {
+  return values.length ? Number((values.reduce((sum, value) => sum + value, 0) / values.length).toFixed(2)) : 0;
+}
+
+function toPeriodSecond(absoluteSecond, period) {
+  return period === "2H" ? absoluteSecond - 45 * 60 : absoluteSecond;
 }
 
 function pitchPoint(player) {
@@ -1020,24 +1281,63 @@ function buildHyperedgePath(points) {
     const dx = point.x - centroid.x;
     const dy = point.y - centroid.y;
     const length = Math.hypot(dx, dy) || 1;
-    const padding = 24;
+    const padding = 18;
     return {
       x: point.x + (dx / length) * padding,
       y: point.y + (dy / length) * padding,
     };
   });
-  return smoothClosedPath(inflated);
+  return polygonPath(inflated);
 }
 
-function smoothClosedPath(points) {
-  const midpoints = points.map((point, index) => midpoint(point, points[(index + 1) % points.length]));
-  let path = `M ${midpoints[0].x.toFixed(2)} ${midpoints[0].y.toFixed(2)}`;
-  for (let index = 0; index < points.length; index += 1) {
-    const control = points[index];
-    const nextMid = midpoints[(index + 1) % points.length];
-    path += ` Q ${control.x.toFixed(2)} ${control.y.toFixed(2)} ${nextMid.x.toFixed(2)} ${nextMid.y.toFixed(2)}`;
+function buildPhasePositions(phase, fallbackPositions) {
+  const phasePositions = new Map();
+  phase.players.forEach((playerId) => {
+    const samples = phase.events
+      .filter((event) => event.playerId === playerId)
+      .flatMap((event) => [event.start, event.end])
+      .filter((position) => position && Number.isFinite(position.x) && Number.isFinite(position.y))
+      .filter((position) => !(position.x === 0 && position.y === 0));
+
+    if (samples.length) {
+      const average = {
+        x: samples.reduce((sum, position) => sum + position.x, 0) / samples.length,
+        y: samples.reduce((sum, position) => sum + position.y, 0) / samples.length,
+      };
+      phasePositions.set(playerId, eventPoint(average));
+      return;
+    }
+
+    const fallback = fallbackPositions.get(playerId);
+    if (fallback) {
+      phasePositions.set(playerId, fallback);
+    }
+  });
+  return phasePositions;
+}
+
+function polygonPath(points) {
+  if (!points.length) {
+    return "";
+  }
+  let path = `M ${points[0].x.toFixed(2)} ${points[0].y.toFixed(2)}`;
+  for (let index = 1; index < points.length; index += 1) {
+    path += ` L ${points[index].x.toFixed(2)} ${points[index].y.toFixed(2)}`;
   }
   return `${path} Z`;
+}
+
+function hyperedgeBranchPath(hub, point, index) {
+  const dx = point.x - hub.x;
+  const dy = point.y - hub.y;
+  const distance = Math.hypot(dx, dy) || 1;
+  const nx = -dy / distance;
+  const ny = dx / distance;
+  const bend = Math.min(26, Math.max(10, distance * 0.12));
+  const direction = index % 2 === 0 ? 1 : -1;
+  const cx = hub.x + dx * 0.55 + nx * bend * direction;
+  const cy = hub.y + dy * 0.55 + ny * bend * direction;
+  return `M ${hub.x.toFixed(2)} ${hub.y.toFixed(2)} Q ${cx.toFixed(2)} ${cy.toFixed(2)} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`;
 }
 
 function capsulePath(a, b, radius) {
@@ -1076,10 +1376,6 @@ function edgeCurve(source, target) {
   const my = (source.y + target.y) / 2;
   const curveHeight = Math.max(18, Math.min(72, Math.abs(source.x - target.x) * 0.18));
   return `M ${source.x} ${source.y} Q ${mx} ${my - curveHeight} ${target.x} ${target.y}`;
-}
-
-function midpoint(a, b) {
-  return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
 }
 
 function convexHull(points) {

@@ -1218,6 +1218,10 @@ button:focus-visible {
   opacity: 0.26;
 }
 
+.node-group.is-member {
+  opacity: 1;
+}
+
 .edge-path {
   fill: none;
   stroke-linecap: round;
@@ -1230,6 +1234,30 @@ button:focus-visible {
 
 .hyperedge-path.is-selected {
   filter: drop-shadow(0 0 18px rgba(255, 255, 255, 0.16));
+}
+
+.hyperedge-outline {
+  fill: none;
+  stroke: rgba(255, 248, 238, 0.92);
+  stroke-width: 1.6;
+  stroke-dasharray: 8 6;
+  filter: drop-shadow(0 0 14px rgba(255, 248, 238, 0.18));
+}
+
+.hyperedge-connector {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 6px rgba(92, 226, 236, 0.18));
+}
+
+.hyperedge-connector.is-selected {
+  filter: drop-shadow(0 0 10px rgba(92, 226, 236, 0.28));
+}
+
+.hyperedge-centroid {
+  stroke: rgba(255, 255, 255, 0.82);
+  stroke-width: 1.3;
 }
 
 .pitch-line {

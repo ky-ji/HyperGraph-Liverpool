@@ -1,0 +1,1026 @@
+{
+  "schemaVersion": "1.0",
+  "datasetType": "pattern_hypergraphs",
+  "match": {
+    "id": 2499743,
+    "title": "Liverpool 4-0 Arsenal",
+    "season": "Premier League 2017/18",
+    "date": "2017-08-27",
+    "venue": "Anfield",
+    "score": "4-0",
+    "focusTeam": "Liverpool",
+    "opponent": "Arsenal"
+  },
+  "nodes": [
+    {
+      "id": 18550,
+      "name": "E. Can",
+      "role": "Midfielder",
+      "avgX": 63.71,
+      "avgY": 51.29,
+      "phaseCount": 8
+    },
+    {
+      "id": 120353,
+      "name": "Mohamed Salah",
+      "role": "Forward",
+      "avgX": 71,
+      "avgY": 53.13,
+      "phaseCount": 8
+    },
+    {
+      "id": 15808,
+      "name": "Roberto Firmino",
+      "role": "Forward",
+      "avgX": 57.73,
+      "avgY": 49.36,
+      "phaseCount": 8
+    },
+    {
+      "id": 257899,
+      "name": "J. Gomez",
+      "role": "Defender",
+      "avgX": 48.4,
+      "avgY": 84.3,
+      "phaseCount": 7
+    },
+    {
+      "id": 116,
+      "name": "G. Wijnaldum",
+      "role": "Midfielder",
+      "avgX": 69.78,
+      "avgY": 35,
+      "phaseCount": 5
+    },
+    {
+      "id": 25747,
+      "name": "S. Mané",
+      "role": "Forward",
+      "avgX": 86.83,
+      "avgY": 34,
+      "phaseCount": 5
+    },
+    {
+      "id": 7964,
+      "name": "J. Henderson",
+      "role": "Midfielder",
+      "avgX": 70.8,
+      "avgY": 51.2,
+      "phaseCount": 4
+    },
+    {
+      "id": 14870,
+      "name": "J. Matip",
+      "role": "Defender",
+      "avgX": 30.75,
+      "avgY": 61,
+      "phaseCount": 4
+    },
+    {
+      "id": 15175,
+      "name": "L. Karius",
+      "role": "Goalkeeper",
+      "avgX": 4.4,
+      "avgY": 23.4,
+      "phaseCount": 4
+    },
+    {
+      "id": 4908,
+      "name": "Alberto Moreno",
+      "role": "Defender",
+      "avgX": 83.5,
+      "avgY": 11.5,
+      "phaseCount": 2
+    },
+    {
+      "id": 7907,
+      "name": "D. Sturridge",
+      "role": "Forward",
+      "avgX": 83.33,
+      "avgY": 67.33,
+      "phaseCount": 2
+    },
+    {
+      "id": 25393,
+      "name": "D. Lovren",
+      "role": "Defender",
+      "avgX": 38,
+      "avgY": 32,
+      "phaseCount": 1
+    },
+    {
+      "id": 8319,
+      "name": "J. Milner",
+      "role": "Midfielder",
+      "avgX": 53.67,
+      "avgY": 12.33,
+      "phaseCount": 1
+    },
+    {
+      "id": 237268,
+      "name": "M. Grujić",
+      "role": "Midfielder",
+      "avgX": 41.5,
+      "avgY": 64,
+      "phaseCount": 1
+    }
+  ],
+  "groups": [
+    {
+      "pattern": "combination play",
+      "phaseCount": 5,
+      "phaseIds": [
+        "phase-04",
+        "phase-06",
+        "phase-07",
+        "phase-08",
+        "phase-10"
+      ],
+      "statistics": {
+        "outcomes": {
+          "shot": 4,
+          "goal": 1
+        },
+        "lanes": {
+          "right": 1,
+          "center": 2,
+          "left": 2
+        },
+        "patterns": {
+          "combination play": 5
+        },
+        "averageOrder": 4.2
+      },
+      "hyperedges": [
+        {
+          "id": "phase-04-unit",
+          "members": [
+            14870,
+            18550,
+            116,
+            120353
+          ],
+          "memberNames": [
+            "J. Matip",
+            "E. Can",
+            "G. Wijnaldum",
+            "Mohamed Salah"
+          ],
+          "order": 4,
+          "weight": 1,
+          "phaseId": "phase-04",
+          "shotPlayerId": 120353,
+          "shotPlayerName": "Mohamed Salah",
+          "outcome": "shot",
+          "lane": "right",
+          "pattern": "combination play"
+        },
+        {
+          "id": "phase-06-unit",
+          "members": [
+            7964,
+            15808,
+            116
+          ],
+          "memberNames": [
+            "J. Henderson",
+            "Roberto Firmino",
+            "G. Wijnaldum"
+          ],
+          "order": 3,
+          "weight": 1,
+          "phaseId": "phase-06",
+          "shotPlayerId": 116,
+          "shotPlayerName": "G. Wijnaldum",
+          "outcome": "shot",
+          "lane": "center",
+          "pattern": "combination play"
+        },
+        {
+          "id": "phase-07-unit",
+          "members": [
+            15175,
+            257899,
+            18550,
+            15808
+          ],
+          "memberNames": [
+            "L. Karius",
+            "J. Gomez",
+            "E. Can",
+            "Roberto Firmino"
+          ],
+          "order": 4,
+          "weight": 1,
+          "phaseId": "phase-07",
+          "shotPlayerId": 15808,
+          "shotPlayerName": "Roberto Firmino",
+          "outcome": "shot",
+          "lane": "left",
+          "pattern": "combination play"
+        },
+        {
+          "id": "phase-08-unit",
+          "members": [
+            257899,
+            116,
+            18550,
+            15808,
+            25747
+          ],
+          "memberNames": [
+            "J. Gomez",
+            "G. Wijnaldum",
+            "E. Can",
+            "Roberto Firmino",
+            "S. Mané"
+          ],
+          "order": 5,
+          "weight": 1,
+          "phaseId": "phase-08",
+          "shotPlayerId": 25747,
+          "shotPlayerName": "S. Mané",
+          "outcome": "goal",
+          "lane": "left",
+          "pattern": "combination play"
+        },
+        {
+          "id": "phase-10-unit",
+          "members": [
+            15175,
+            7964,
+            18550,
+            14870,
+            257899
+          ],
+          "memberNames": [
+            "L. Karius",
+            "J. Henderson",
+            "E. Can",
+            "J. Matip",
+            "J. Gomez"
+          ],
+          "order": 5,
+          "weight": 1,
+          "phaseId": "phase-10",
+          "shotPlayerId": 18550,
+          "shotPlayerName": "E. Can",
+          "outcome": "shot",
+          "lane": "center",
+          "pattern": "combination play"
+        }
+      ],
+      "topPairEdges": [
+        {
+          "source": 18550,
+          "target": 15808,
+          "count": 2
+        },
+        {
+          "source": 257899,
+          "target": 18550,
+          "count": 2
+        },
+        {
+          "source": 116,
+          "target": 18550,
+          "count": 1
+        },
+        {
+          "source": 116,
+          "target": 120353,
+          "count": 1
+        },
+        {
+          "source": 7964,
+          "target": 18550,
+          "count": 1
+        },
+        {
+          "source": 14870,
+          "target": 257899,
+          "count": 1
+        },
+        {
+          "source": 15808,
+          "target": 25747,
+          "count": 1
+        },
+        {
+          "source": 18550,
+          "target": 116,
+          "count": 1
+        },
+        {
+          "source": 18550,
+          "target": 14870,
+          "count": 1
+        },
+        {
+          "source": 257899,
+          "target": 116,
+          "count": 1
+        }
+      ],
+      "topHyperedgeGroups": [
+        {
+          "members": [
+            116,
+            15808,
+            18550,
+            25747,
+            257899
+          ],
+          "memberNames": [
+            "G. Wijnaldum",
+            "Roberto Firmino",
+            "E. Can",
+            "S. Mané",
+            "J. Gomez"
+          ],
+          "order": 5,
+          "count": 1
+        },
+        {
+          "members": [
+            7964,
+            14870,
+            15175,
+            18550,
+            257899
+          ],
+          "memberNames": [
+            "J. Henderson",
+            "J. Matip",
+            "L. Karius",
+            "E. Can",
+            "J. Gomez"
+          ],
+          "order": 5,
+          "count": 1
+        },
+        {
+          "members": [
+            116,
+            14870,
+            18550,
+            120353
+          ],
+          "memberNames": [
+            "G. Wijnaldum",
+            "J. Matip",
+            "E. Can",
+            "Mohamed Salah"
+          ],
+          "order": 4,
+          "count": 1
+        },
+        {
+          "members": [
+            15175,
+            15808,
+            18550,
+            257899
+          ],
+          "memberNames": [
+            "L. Karius",
+            "Roberto Firmino",
+            "E. Can",
+            "J. Gomez"
+          ],
+          "order": 4,
+          "count": 1
+        },
+        {
+          "members": [
+            116,
+            7964,
+            15808
+          ],
+          "memberNames": [
+            "G. Wijnaldum",
+            "J. Henderson",
+            "Roberto Firmino"
+          ],
+          "order": 3,
+          "count": 1
+        }
+      ]
+    },
+    {
+      "pattern": "direct break",
+      "phaseCount": 1,
+      "phaseIds": [
+        "phase-09"
+      ],
+      "statistics": {
+        "outcomes": {
+          "goal": 1
+        },
+        "lanes": {
+          "center": 1
+        },
+        "patterns": {
+          "direct break": 1
+        },
+        "averageOrder": 2.0
+      },
+      "hyperedges": [
+        {
+          "id": "phase-09-unit",
+          "members": [
+            14870,
+            120353
+          ],
+          "memberNames": [
+            "J. Matip",
+            "Mohamed Salah"
+          ],
+          "order": 2,
+          "weight": 1,
+          "phaseId": "phase-09",
+          "shotPlayerId": 120353,
+          "shotPlayerName": "Mohamed Salah",
+          "outcome": "goal",
+          "lane": "center",
+          "pattern": "direct break"
+        }
+      ],
+      "topPairEdges": [],
+      "topHyperedgeGroups": [
+        {
+          "members": [
+            14870,
+            120353
+          ],
+          "memberNames": [
+            "J. Matip",
+            "Mohamed Salah"
+          ],
+          "order": 2,
+          "count": 1
+        }
+      ]
+    },
+    {
+      "pattern": "layered buildup",
+      "phaseCount": 1,
+      "phaseIds": [
+        "phase-05"
+      ],
+      "statistics": {
+        "outcomes": {
+          "shot": 1
+        },
+        "lanes": {
+          "center": 1
+        },
+        "patterns": {
+          "layered buildup": 1
+        },
+        "averageOrder": 6.0
+      },
+      "hyperedges": [
+        {
+          "id": "phase-05-unit",
+          "members": [
+            25393,
+            116,
+            15808,
+            7964,
+            257899,
+            25747
+          ],
+          "memberNames": [
+            "D. Lovren",
+            "G. Wijnaldum",
+            "Roberto Firmino",
+            "J. Henderson",
+            "J. Gomez",
+            "S. Mané"
+          ],
+          "order": 6,
+          "weight": 1,
+          "phaseId": "phase-05",
+          "shotPlayerId": 25747,
+          "shotPlayerName": "S. Mané",
+          "outcome": "shot",
+          "lane": "center",
+          "pattern": "layered buildup"
+        }
+      ],
+      "topPairEdges": [
+        {
+          "source": 116,
+          "target": 15808,
+          "count": 1
+        },
+        {
+          "source": 7964,
+          "target": 116,
+          "count": 1
+        },
+        {
+          "source": 7964,
+          "target": 257899,
+          "count": 1
+        },
+        {
+          "source": 15808,
+          "target": 7964,
+          "count": 1
+        },
+        {
+          "source": 25393,
+          "target": 116,
+          "count": 1
+        },
+        {
+          "source": 257899,
+          "target": 7964,
+          "count": 1
+        }
+      ],
+      "topHyperedgeGroups": [
+        {
+          "members": [
+            116,
+            7964,
+            15808,
+            25393,
+            25747,
+            257899
+          ],
+          "memberNames": [
+            "G. Wijnaldum",
+            "J. Henderson",
+            "Roberto Firmino",
+            "D. Lovren",
+            "S. Mané",
+            "J. Gomez"
+          ],
+          "order": 6,
+          "count": 1
+        }
+      ]
+    },
+    {
+      "pattern": "through-ball move",
+      "phaseCount": 2,
+      "phaseIds": [
+        "phase-11",
+        "phase-14"
+      ],
+      "statistics": {
+        "outcomes": {
+          "shot": 2
+        },
+        "lanes": {
+          "center": 1,
+          "left": 1
+        },
+        "patterns": {
+          "through-ball move": 2
+        },
+        "averageOrder": 4.0
+      },
+      "hyperedges": [
+        {
+          "id": "phase-11-unit",
+          "members": [
+            15175,
+            257899,
+            15808,
+            120353,
+            25747
+          ],
+          "memberNames": [
+            "L. Karius",
+            "J. Gomez",
+            "Roberto Firmino",
+            "Mohamed Salah",
+            "S. Mané"
+          ],
+          "order": 5,
+          "weight": 1,
+          "phaseId": "phase-11",
+          "shotPlayerId": 25747,
+          "shotPlayerName": "S. Mané",
+          "outcome": "shot",
+          "lane": "center",
+          "pattern": "through-ball move"
+        },
+        {
+          "id": "phase-14-unit",
+          "members": [
+            8319,
+            120353,
+            7964
+          ],
+          "memberNames": [
+            "J. Milner",
+            "Mohamed Salah",
+            "J. Henderson"
+          ],
+          "order": 3,
+          "weight": 1,
+          "phaseId": "phase-14",
+          "shotPlayerId": 120353,
+          "shotPlayerName": "Mohamed Salah",
+          "outcome": "shot",
+          "lane": "left",
+          "pattern": "through-ball move"
+        }
+      ],
+      "topPairEdges": [
+        {
+          "source": 8319,
+          "target": 120353,
+          "count": 2
+        },
+        {
+          "source": 7964,
+          "target": 8319,
+          "count": 1
+        },
+        {
+          "source": 8319,
+          "target": 7964,
+          "count": 1
+        },
+        {
+          "source": 15175,
+          "target": 15808,
+          "count": 1
+        },
+        {
+          "source": 120353,
+          "target": 8319,
+          "count": 1
+        },
+        {
+          "source": 120353,
+          "target": 25747,
+          "count": 1
+        },
+        {
+          "source": 257899,
+          "target": 15175,
+          "count": 1
+        }
+      ],
+      "topHyperedgeGroups": [
+        {
+          "members": [
+            15175,
+            15808,
+            25747,
+            120353,
+            257899
+          ],
+          "memberNames": [
+            "L. Karius",
+            "Roberto Firmino",
+            "S. Mané",
+            "Mohamed Salah",
+            "J. Gomez"
+          ],
+          "order": 5,
+          "count": 1
+        },
+        {
+          "members": [
+            7964,
+            8319,
+            120353
+          ],
+          "memberNames": [
+            "J. Henderson",
+            "J. Milner",
+            "Mohamed Salah"
+          ],
+          "order": 3,
+          "count": 1
+        }
+      ]
+    },
+    {
+      "pattern": "vertical burst",
+      "phaseCount": 1,
+      "phaseIds": [
+        "phase-13"
+      ],
+      "statistics": {
+        "outcomes": {
+          "shot": 1
+        },
+        "lanes": {
+          "right": 1
+        },
+        "patterns": {
+          "vertical burst": 1
+        },
+        "averageOrder": 3.0
+      },
+      "hyperedges": [
+        {
+          "id": "phase-13-unit",
+          "members": [
+            15175,
+            237268,
+            7907
+          ],
+          "memberNames": [
+            "L. Karius",
+            "M. Grujić",
+            "D. Sturridge"
+          ],
+          "order": 3,
+          "weight": 1,
+          "phaseId": "phase-13",
+          "shotPlayerId": 7907,
+          "shotPlayerName": "D. Sturridge",
+          "outcome": "shot",
+          "lane": "right",
+          "pattern": "vertical burst"
+        }
+      ],
+      "topPairEdges": [
+        {
+          "source": 237268,
+          "target": 7907,
+          "count": 1
+        }
+      ],
+      "topHyperedgeGroups": [
+        {
+          "members": [
+            7907,
+            15175,
+            237268
+          ],
+          "memberNames": [
+            "D. Sturridge",
+            "L. Karius",
+            "M. Grujić"
+          ],
+          "order": 3,
+          "count": 1
+        }
+      ]
+    },
+    {
+      "pattern": "wide delivery",
+      "phaseCount": 4,
+      "phaseIds": [
+        "phase-01",
+        "phase-02",
+        "phase-03",
+        "phase-12"
+      ],
+      "statistics": {
+        "outcomes": {
+          "shot": 2,
+          "goal": 2
+        },
+        "lanes": {
+          "center": 1,
+          "left": 2,
+          "right": 1
+        },
+        "patterns": {
+          "wide delivery": 4
+        },
+        "averageOrder": 5.0
+      },
+      "hyperedges": [
+        {
+          "id": "phase-01-unit",
+          "members": [
+            18550,
+            120353,
+            14870,
+            25747,
+            4908
+          ],
+          "memberNames": [
+            "E. Can",
+            "Mohamed Salah",
+            "J. Matip",
+            "S. Mané",
+            "Alberto Moreno"
+          ],
+          "order": 5,
+          "weight": 1,
+          "phaseId": "phase-01",
+          "shotPlayerId": 18550,
+          "shotPlayerName": "E. Can",
+          "outcome": "shot",
+          "lane": "center",
+          "pattern": "wide delivery"
+        },
+        {
+          "id": "phase-02-unit",
+          "members": [
+            25747,
+            116,
+            4908,
+            18550,
+            15808,
+            120353
+          ],
+          "memberNames": [
+            "S. Mané",
+            "G. Wijnaldum",
+            "Alberto Moreno",
+            "E. Can",
+            "Roberto Firmino",
+            "Mohamed Salah"
+          ],
+          "order": 6,
+          "weight": 1,
+          "phaseId": "phase-02",
+          "shotPlayerId": 120353,
+          "shotPlayerName": "Mohamed Salah",
+          "outcome": "shot",
+          "lane": "left",
+          "pattern": "wide delivery"
+        },
+        {
+          "id": "phase-03-unit",
+          "members": [
+            257899,
+            120353,
+            18550,
+            15808
+          ],
+          "memberNames": [
+            "J. Gomez",
+            "Mohamed Salah",
+            "E. Can",
+            "Roberto Firmino"
+          ],
+          "order": 4,
+          "weight": 1,
+          "phaseId": "phase-03",
+          "shotPlayerId": 15808,
+          "shotPlayerName": "Roberto Firmino",
+          "outcome": "goal",
+          "lane": "right",
+          "pattern": "wide delivery"
+        },
+        {
+          "id": "phase-12-unit",
+          "members": [
+            15808,
+            257899,
+            18550,
+            120353,
+            7907
+          ],
+          "memberNames": [
+            "Roberto Firmino",
+            "J. Gomez",
+            "E. Can",
+            "Mohamed Salah",
+            "D. Sturridge"
+          ],
+          "order": 5,
+          "weight": 1,
+          "phaseId": "phase-12",
+          "shotPlayerId": 7907,
+          "shotPlayerName": "D. Sturridge",
+          "outcome": "goal",
+          "lane": "left",
+          "pattern": "wide delivery"
+        }
+      ],
+      "topPairEdges": [
+        {
+          "source": 18550,
+          "target": 120353,
+          "count": 3
+        },
+        {
+          "source": 15808,
+          "target": 18550,
+          "count": 2
+        },
+        {
+          "source": 257899,
+          "target": 15808,
+          "count": 2
+        },
+        {
+          "source": 116,
+          "target": 4908,
+          "count": 1
+        },
+        {
+          "source": 116,
+          "target": 18550,
+          "count": 1
+        },
+        {
+          "source": 4908,
+          "target": 116,
+          "count": 1
+        },
+        {
+          "source": 4908,
+          "target": 18550,
+          "count": 1
+        },
+        {
+          "source": 14870,
+          "target": 120353,
+          "count": 1
+        },
+        {
+          "source": 15808,
+          "target": 257899,
+          "count": 1
+        },
+        {
+          "source": 18550,
+          "target": 15808,
+          "count": 1
+        }
+      ],
+      "topHyperedgeGroups": [
+        {
+          "members": [
+            116,
+            4908,
+            15808,
+            18550,
+            25747,
+            120353
+          ],
+          "memberNames": [
+            "G. Wijnaldum",
+            "Alberto Moreno",
+            "Roberto Firmino",
+            "E. Can",
+            "S. Mané",
+            "Mohamed Salah"
+          ],
+          "order": 6,
+          "count": 1
+        },
+        {
+          "members": [
+            4908,
+            14870,
+            18550,
+            25747,
+            120353
+          ],
+          "memberNames": [
+            "Alberto Moreno",
+            "J. Matip",
+            "E. Can",
+            "S. Mané",
+            "Mohamed Salah"
+          ],
+          "order": 5,
+          "count": 1
+        },
+        {
+          "members": [
+            7907,
+            15808,
+            18550,
+            120353,
+            257899
+          ],
+          "memberNames": [
+            "D. Sturridge",
+            "Roberto Firmino",
+            "E. Can",
+            "Mohamed Salah",
+            "J. Gomez"
+          ],
+          "order": 5,
+          "count": 1
+        },
+        {
+          "members": [
+            15808,
+            18550,
+            120353,
+            257899
+          ],
+          "memberNames": [
+            "Roberto Firmino",
+            "E. Can",
+            "Mohamed Salah",
+            "J. Gomez"
+          ],
+          "order": 4,
+          "count": 1
+        }
+      ]
+    }
+  ]
+}
